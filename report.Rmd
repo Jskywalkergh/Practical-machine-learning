@@ -97,6 +97,8 @@ write.table(x,file='prediction.txt',row.names=F,col.names=T)
 ```
 
 ## Appendix: Figures
+If you cannot see figures in the above link, please download report.html. The pictures should be in it.
+
 1. Correlation Matrix   
 ```{r, cache = T}
 corrPlot <- cor(trainData[, -length(names(trainData))])
