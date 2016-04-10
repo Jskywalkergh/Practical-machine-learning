@@ -42,7 +42,7 @@ training = training[,-1]
 testing = testing[,-1]
 ```
 Next, we remove columns with NAs. 
-```{r, cache = T}
+```{r, cache = F}
 training <- training[, colSums(is.na(training)) == 0] 
 testing <- testing[, colSums(is.na(testing)) == 0] 
 ```  
@@ -75,7 +75,7 @@ dt <- rpart(classe ~ ., data=trainData, method="class")
 pred1 <- predict(dt, testData, type = "class")
 confusionMatrix(pred1, testData$classe)
 ```
-We can see that the accuracy is just about 75%. Now we try **random forest**. We will use **4-fold cross validation** when applying the algorithm.
+We can see that the accuracy is just about 70%. Now we try **random forest**. We will use **4-fold cross validation** when applying the algorithm.
 ```{r, cache = T}
 controlRf <- trainControl(method="cv", 4)
 modelRf <- train(classe ~ ., data=trainData, method="rf", trControl=controlRf, ntree=250)
@@ -83,7 +83,7 @@ modelRf <- train(classe ~ ., data=trainData, method="rf", trControl=controlRf, n
 pred2 <- predict(modelRf, testData)
 confusionMatrix(pred2, testData$classe)
 ```
-The estimated accuracy of the model is 99.35% and the estimated out-of-sample error is 0.65%. Random Forest is expected to perform well here because it automatically selects important variables and is robust to correlated covariates & outliers in general. We are going to use this model to predict the test data.
+The estimated accuracy of the model is 99.39% and the estimated out-of-sample error is 0.61%. Random Forest is expected to perform well here because it automatically selects important variables and is robust to correlated covariates & outliers in general. We are going to use this model to predict the test data.
 
 ## Predict on testing data
 ```{r, cache = T}
@@ -92,7 +92,7 @@ result
 ```
 Finally we write the results to a txt file for submission.
 ```{r, cache = T}
-x = data.frame(names(result), result)
+x = data.frame(seq(1,20),result)
 colnames(x) = c('Problem_id','Predicted result')
 write.table(x,file='prediction.txt',row.names=F,col.names=T)
 ```
