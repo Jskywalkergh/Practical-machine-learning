@@ -60,27 +60,29 @@ dim(training); dim(testing)
 ```
 The cleaned training data set contains 19622 observations and 53 variables, while the testing data set contains 20 observations and 53 variables. The "classe" variable is still in the cleaned training set.
 ### Slice the data
-Now we can split the cleaned training set into a pure training data set (60%) and a validation data set (40%). We will use the validation data set to conduct cross validation in future steps.  
+Now we can split the cleaned training set into a pure training data set (70%) and a validation data set (30%). We will use the validation data set to conduct **cross validation** in future steps.  
 ```{r, cache = T}
 set.seed(667788) 
-inTrain <- createDataPartition(training$classe, p=0.60, list=F)
+inTrain <- createDataPartition(training$classe, p=0.70, list=F)
 trainData <- training[inTrain, ]
 testData <- training[-inTrain, ]
 ```
 ## Data Modeling
-We first try **decision tree**.
+We first see how **decision tree** looks like.
 ```{r, cache = T}
 dt <- rpart(classe ~ ., data=trainData, method="class")
 pred1 <- predict(dt, testData, type = "class")
 confusionMatrix(pred1, testData$classe)
 ```
-We can see that the accuracy is less than 75%, which indicating decision tree might not be the best choice here. Now we try **random forest**.
+We can see that the accuracy is just about 75%. Now we try **random forest**. We will use 4-fold cross validation when applying the algorithm.
 ```{r, cache = T}
-rf <- randomForest(factor(classe) ~. , data=trainData)
-pred2 <- predict(rf, testData, type = "class")
+controlRf <- trainControl(method="cv", 4)
+modelRf <- train(classe ~ ., data=trainData, method="rf", trControl=controlRf, ntree=250)
+
+pred2 <- predict(modelRf, testData)
 confusionMatrix(pred2, testData$classe)
 ```
-The estimated accuracy of the model is 99.43% and the estimated out-of-sample error is 0.57%. Random Forest is expected to perform well here because it automatically selects important variables and is robust to correlated covariates & outliers in general. We are going to use this model to predict the test data.
+The estimated accuracy of the model is 99.35% and the estimated out-of-sample error is 0.65%. Random Forest is expected to perform well here because it automatically selects important variables and is robust to correlated covariates & outliers in general. We are going to use this model to predict the test data.
 
 ## Predict on testing data
 ```{r, cache = T}
