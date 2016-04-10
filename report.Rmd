@@ -2,10 +2,10 @@
 title: "Practical Machine Learning Final Project"
 author: "by Jian Shi"
 output:
+  pdf_document: default
   html_document:
     fig_height: 9
     fig_width: 9
-  pdf_document: default
 ---
 
 ## Background  
@@ -98,7 +98,6 @@ write.table(x,file='prediction.txt',row.names=F,col.names=T)
 ```
 
 ## Appendix: Figures
-If you cannot see figures in the above link, please download report.html. The pictures should be in it.
 
 1. Correlation Matrix   
 ```{r, cache = T}
