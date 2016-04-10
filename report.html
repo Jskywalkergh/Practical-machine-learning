@@ -247,10 +247,9 @@ confusionMatrix(pred2, testData$classe)</code></pre>
 </div>
 <div id="predict-on-testing-data" class="section level2">
 <h2>Predict on testing data</h2>
-<pre class="r"><code>result &lt;- predict(rf, testing[, -dim(testing)[2]]) #the last column is problem_id
+<pre class="r"><code>result &lt;- predict(modelRf, testing[, -dim(testing)[2]]) #the last column is problem_id
 result</code></pre>
-<pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
-##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
 ## Levels: A B C D E</code></pre>
 <p>Finally we write the results to a txt file for submission.</p>
 <pre class="r"><code>x = data.frame(names(result), result)

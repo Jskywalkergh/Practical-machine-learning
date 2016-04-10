@@ -1,10 +1,11 @@
 ---
-title: Practical Machine Learning Final Project
+title: "Practical Machine Learning Final Project"
 author: "by Jian Shi"
 output:
   html_document:
     fig_height: 9
     fig_width: 9
+  pdf_document: default
 ---
 
 ## Background  
@@ -86,7 +87,7 @@ The estimated accuracy of the model is 99.35% and the estimated out-of-sample er
 
 ## Predict on testing data
 ```{r, cache = T}
-result <- predict(rf, testing[, -dim(testing)[2]]) #the last column is problem_id
+result <- predict(modelRf, testing[, -dim(testing)[2]]) #the last column is problem_id
 result
 ```
 Finally we write the results to a txt file for submission.
