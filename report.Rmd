@@ -74,7 +74,7 @@ dt <- rpart(classe ~ ., data=trainData, method="class")
 pred1 <- predict(dt, testData, type = "class")
 confusionMatrix(pred1, testData$classe)
 ```
-We can see that the accuracy is just about 75%. Now we try **random forest**. We will use 4-fold cross validation when applying the algorithm.
+We can see that the accuracy is just about 75%. Now we try **random forest**. We will use **4-fold cross validation** when applying the algorithm.
 ```{r, cache = T}
 controlRf <- trainControl(method="cv", 4)
 modelRf <- train(classe ~ ., data=trainData, method="rf", trControl=controlRf, ntree=250)

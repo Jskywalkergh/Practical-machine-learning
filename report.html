@@ -206,7 +206,7 @@ confusionMatrix(pred1, testData$classe)</code></pre>
 ## Detection Rate         0.2552   0.1180   0.1388   0.1039   0.1324
 ## Detection Prevalence   0.3072   0.1608   0.2072   0.1490   0.1758
 ## Balanced Accuracy      0.9121   0.7785   0.8566   0.7899   0.8337</code></pre>
-<p>We can see that the accuracy is just about 75%. Now we try <strong>random forest</strong>. We will use 4-fold cross validation when applying the algorithm.</p>
+<p>We can see that the accuracy is just about 75%. Now we try <strong>random forest</strong>. We will use <strong>4-fold cross validation</strong> when applying the algorithm.</p>
 <pre class="r"><code>controlRf &lt;- trainControl(method=&quot;cv&quot;, 4)
 modelRf &lt;- train(classe ~ ., data=trainData, method=&quot;rf&quot;, trControl=controlRf, ntree=250)
 
