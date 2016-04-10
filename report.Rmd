@@ -1,0 +1,108 @@
+---
+title: Practical Machine Learning Final Project
+author: "by Jian Shi"
+output:
+  html_document:
+    fig_height: 9
+    fig_width: 9
+---
+
+## Background  
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it.  
+
+In this project, we will use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise.  
+
+## Preparing  
+```{r, cache = T}
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(RColorBrewer)
+library(rattle)
+library(randomForest)
+library(knitr)
+library(corrplot)
+```
+### Get the Data
+```{r, cache = T}
+trainUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+
+training <- read.csv(url(trainUrl), na.strings=c("NA","#DIV/0!",""))
+testing <- read.csv(url(testUrl), na.strings=c("NA","#DIV/0!",""))
+dim(training); dim(testing)
+```  
+The training data set contains 19622 observations and 160 variables, while the testing data set contains 20 observations and 160 variables. The "classe" variable in the training set is the outcome to predict. 
+
+### Clean the data
+In this step, we will clean the data and get rid of observations with missing values as well as some meaningless variables. First, we remove the first column as it is just an index.
+```{r, cache = T}
+training = training[,-1]
+testing = testing[,-1]
+```
+Next, we remove columns with NAs. 
+```{r, cache = T}
+training <- training[, colSums(is.na(training)) == 0] 
+testing <- testing[, colSums(is.na(testing)) == 0] 
+```  
+Then, we remove some columns that are not contributing much to accelerometer measurements. These columns contains keywords such as "window" and  "timestamp".
+```{r, cache = T}
+classe <- training$classe
+trainRemove <- grepl("^X|timestamp|window", names(training))
+training <- training[, !trainRemove]
+training <- training[, sapply(training, is.numeric)]
+training$classe <- classe
+
+testRemove <- grepl("^X|timestamp|window", names(testing))
+testing <- testing[, !testRemove]
+testing <- testing[, sapply(testing, is.numeric)]
+dim(training); dim(testing)
+```
+The cleaned training data set contains 19622 observations and 53 variables, while the testing data set contains 20 observations and 53 variables. The "classe" variable is still in the cleaned training set.
+### Slice the data
+Now we can split the cleaned training set into a pure training data set (60%) and a validation data set (40%). We will use the validation data set to conduct cross validation in future steps.  
+```{r, cache = T}
+set.seed(667788) 
+inTrain <- createDataPartition(training$classe, p=0.60, list=F)
+trainData <- training[inTrain, ]
+testData <- training[-inTrain, ]
+```
+## Data Modeling
+We first try **decision tree**.
+```{r, cache = T}
+dt <- rpart(classe ~ ., data=trainData, method="class")
+pred1 <- predict(dt, testData, type = "class")
+confusionMatrix(pred1, testData$classe)
+```
+We can see that the accuracy is less than 75%, which indicating decision tree might not be the best choice here. Now we try **random forest**.
+```{r, cache = T}
+rf <- randomForest(factor(classe) ~. , data=trainData)
+pred2 <- predict(rf, testData, type = "class")
+confusionMatrix(pred2, testData$classe)
+```
+The estimated accuracy of the model is 99.43% and the estimated out-of-sample error is 0.57%. Random Forest is expected to perform well here because it automatically selects important variables and is robust to correlated covariates & outliers in general. We are going to use this model to predict the test data.
+
+## Predict on testing data
+```{r, cache = T}
+result <- predict(rf, testing[, -dim(testing)[2]]) #the last column is problem_id
+result
+```
+Finally we write the results to a txt file for submission.
+```{r, cache = T}
+x = data.frame(names(result), result)
+colnames(x) = c('Problem_id','Predicted result')
+write.table(x,file='prediction.txt',row.names=F,col.names=T)
+```
+
+## Appendix: Figures
+1. Correlation Matrix   
+```{r, cache = T}
+corrPlot <- cor(trainData[, -length(names(trainData))])
+corrplot(corrPlot, method="color", type='lower', order='AOE', tl.cex=0.5)
+```
+
+2. Decision Tree (we already calculate it above and saved it as "dt" )
+```{r, cache = T}
+prp(dt) #here I chose the fast plot over the fancy plot
+```
+
